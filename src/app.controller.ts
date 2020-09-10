@@ -68,6 +68,7 @@ export class AppController {
   ].map(name => {return {name: name, status: name}})
 
   urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
+  publicUrlPrefix = this.configService.get<string>('REDMINE_PUBLIC_URL_PREFIX')
 
   @Get('kanban-data')
   async getKanbanData(): Promise<string> {
@@ -110,7 +111,7 @@ export class AppController {
       const issue = this.issues[i]
       res.push(issue)
       if (issue.children && issue.children.length > 0) {
-        res.push.apply(res, issue.children)
+        res.push(...issue.children)
       }
     }
     return res
@@ -156,12 +157,18 @@ export class AppController {
         title: item.column.name || item.issue.redmineData.status.name,
         item: item.children.map(childIssue => {
           return {
-            id: `issue_${childIssue.redmineData.id}`,
-            title: `${childIssue.redmineData.tracker.name} #${childIssue.redmineData.id}: ${childIssue.redmineData.subject}`
+            id: `${childIssue.redmineData.id}`,
+            title: `${childIssue.redmineData.tracker.name} #${childIssue.redmineData.id}`,
+            description: childIssue.redmineData.subject,
+            url: this.getIssueUrl(childIssue.redmineData.id)
           } as ItemConfig
         })
       } as BoardConfig
     })
     return res
+  }
+
+  private getIssueUrl(number: string|number): string|null {
+    return `${this.publicUrlPrefix}/issues/${number}`;
   }
 }
