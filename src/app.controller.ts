@@ -1,4 +1,4 @@
-import {Controller, Get} from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import {AppService} from './app.service';
 import axios from 'axios';
 import {RedmineIssueData} from './model/redmine-issue-data'
@@ -82,6 +82,12 @@ export class AppController {
   @Get('boards')
   async getAllBoards(): Promise<string> {
     const resp = await this.boardService.boards()
+    return JSON.stringify(resp)
+  }
+
+  @Get('board/:id')
+  async getOneBoard(@Param('id') id: string): Promise<string> {
+    const resp = await this.boardService.board({id: Number(id)})
     return JSON.stringify(resp)
   }
 
