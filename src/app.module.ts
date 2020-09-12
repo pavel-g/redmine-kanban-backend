@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {ServeStaticModule} from "@nestjs/serve-static";
 import { join } from 'path';
 import {ConfigModule} from "@nestjs/config";
+import { PrismaService } from './prisma/prisma.service';
+import { BoardService } from './board/board.service';
 
 @Module({
   imports: [
@@ -16,6 +18,10 @@ import {ConfigModule} from "@nestjs/config";
     })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService, BoardService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  configure(consumer: MiddlewareConsumer): any {
+  }
+}

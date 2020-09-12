@@ -8,12 +8,14 @@ import {KanbanConfig} from "./model/jkanban/kanban-config";
 import {BoardConfig} from "./model/jkanban/board-config";
 import {ItemConfig} from "./model/jkanban/item-config";
 import {ConfigService} from "@nestjs/config";
+import { BoardService } from './board/board.service';
 
 @Controller()
 export class AppController {
   constructor(
       private readonly appService: AppService,
-      private configService: ConfigService
+      private configService: ConfigService,
+      private boardService: BoardService
   ) {}
 
   issues: IssueParam[] = [
@@ -75,6 +77,12 @@ export class AppController {
     await this.updateAllIssueRedmineData()
     const res = this.getKanbans()
     return JSON.stringify(res)
+  }
+
+  @Get('boards')
+  async getAllBoards(): Promise<string> {
+    const resp = await this.boardService.boards()
+    return JSON.stringify(resp)
   }
 
   private getUrl(issueNumber: number): string {
