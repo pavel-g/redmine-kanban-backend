@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import {AppService} from './app.service';
 import axios from 'axios';
 import {RedmineIssueData} from './model/redmine-issue-data'
@@ -8,7 +8,7 @@ import {KanbanConfig} from "./model/jkanban/kanban-config";
 import {BoardConfig} from "./model/jkanban/board-config";
 import {ItemConfig} from "./model/jkanban/item-config";
 import {ConfigService} from "@nestjs/config";
-import { BoardService } from './board/board.service';
+import { BoardCreateInput, BoardService, BoardUpdateInput } from './board/board.service';
 
 @Controller()
 export class AppController {
@@ -89,6 +89,16 @@ export class AppController {
   async getOneBoard(@Param('id') id: string): Promise<string> {
     const resp = await this.boardService.board({id: Number(id)})
     return JSON.stringify(resp)
+  }
+
+  @Post('board/create')
+  async createBoard(@Body() data: BoardCreateInput): Promise<void> {
+    await this.boardService.create(data)
+  }
+
+  @Post('board/:id/update')
+  async updateBoard(@Param() id: string, @Body() data: BoardUpdateInput): Promise<void> {
+    await this.boardService.update(Number(id), data)
   }
 
   private getUrl(issueNumber: number): string {
