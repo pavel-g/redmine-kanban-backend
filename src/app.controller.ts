@@ -8,7 +8,8 @@ import {KanbanConfig} from "./model/jkanban/kanban-config";
 import {BoardConfig} from "./model/jkanban/board-config";
 import {ItemConfig} from "./model/jkanban/item-config";
 import {ConfigService} from "@nestjs/config";
-import { BoardCreateInput, BoardService, BoardUpdateInput } from './board/board.service';
+import { Board, BoardCreateInput, BoardService, BoardUpdateInput } from './board/board.service';
+import demoData from "./demo-data"
 
 @Controller()
 export class AppController {
@@ -74,8 +75,9 @@ export class AppController {
 
   @Get('kanban-data')
   async getKanbanData(): Promise<string> {
-    await this.updateAllIssueRedmineData()
-    const res = this.getKanbans()
+    // await this.updateAllIssueRedmineData()
+    // const res = this.getKanbans()
+    const res = demoData
     return JSON.stringify(res)
   }
 
@@ -91,13 +93,26 @@ export class AppController {
     return JSON.stringify(resp)
   }
 
+  @Get('board/:id/kanban')
+  async getOneBoardKanbanInfo(@Param('id') id: string): Promise<string> {
+    const boardParams = await this.boardService.board({id: Number(id)})
+    await this.updateAllIssueRedmineData(boardParams.config)
+    const res = this.getKanbans(boardParams.config)
+    const resp: Board = {
+      id: boardParams.id,
+      name: boardParams.name,
+      config: res
+    }
+    return JSON.stringify(resp)
+  }
+
   @Post('board/create')
   async createBoard(@Body() data: BoardCreateInput): Promise<void> {
     await this.boardService.create(data)
   }
 
   @Post('board/:id/update')
-  async updateBoard(@Param() id: string, @Body() data: BoardUpdateInput): Promise<void> {
+  async updateBoard(@Param('id') id: string, @Body() data: BoardUpdateInput): Promise<void> {
     await this.boardService.update(Number(id), data)
   }
 
@@ -122,17 +137,17 @@ export class AppController {
     issue.redmineData = data
   }
 
-  private async updateAllIssueRedmineData(): Promise<void> {
-    const allIssues = this.getFlatIssues()
+  private async updateAllIssueRedmineData(issues: IssueParam[]): Promise<void> {
+    const allIssues = this.getFlatIssues(issues)
     await Promise.all(allIssues.map(async issue => {
       await this.updateIssueRedmineData(issue)
     }))
   }
 
-  private getFlatIssues(): IssueParam[] {
+  private getFlatIssues(issues: IssueParam[]): IssueParam[] {
     const res = [];
-    for(let i = 0; i < this.issues.length; i++) {
-      const issue = this.issues[i]
+    for(let i = 0; i < issues.length; i++) {
+      const issue = issues[i]
       res.push(issue)
       if (issue.children && issue.children.length > 0) {
         res.push(...issue.children)
@@ -141,8 +156,8 @@ export class AppController {
     return res
   }
 
-  private getKanbans(): KanbanConfig[] {
-    const res: KanbanConfig[] = this.issues.map(issue => {
+  private getKanbans(issues: IssueParam[]): KanbanConfig[] {
+    const res: KanbanConfig[] = issues.map(issue => {
       return {
         id: issue.number,
         element: `issue_${issue.number}`,
