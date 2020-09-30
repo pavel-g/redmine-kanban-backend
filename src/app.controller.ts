@@ -1,7 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import {AppService} from './app.service';
-import axios from 'axios';
-import {RedmineIssueData} from './model/redmine-issue-data'
 import {IssueParam} from "./model/issue-param";
 import {ColumnParam} from "./model/column-param";
 import {KanbanConfig} from "./model/jkanban/kanban-config";
@@ -10,13 +8,15 @@ import {ItemConfig} from "./model/jkanban/item-config";
 import {ConfigService} from "@nestjs/config";
 import { Board, BoardCreateInput, BoardService, BoardUpdateInput } from './board/board.service';
 import demoData from "./demo-data"
+import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-loader.service';
 
 @Controller()
 export class AppController {
   constructor(
       private readonly appService: AppService,
       private configService: ConfigService,
-      private boardService: BoardService
+      private boardService: BoardService,
+      private redmineIssueLoader: RedmineIssueLoaderService
   ) {}
 
   issues: IssueParam[] = [
@@ -70,7 +70,6 @@ export class AppController {
     'Frozen',
   ].map(name => {return {name: name, status: name}})
 
-  urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
   publicUrlPrefix = this.configService.get<string>('REDMINE_PUBLIC_URL_PREFIX')
 
   @Get('kanban-data')
@@ -116,24 +115,8 @@ export class AppController {
     await this.boardService.update(Number(id), data)
   }
 
-  private getUrl(issueNumber: number): string {
-    if (typeof this.urlPrefix !== 'string' || this.urlPrefix.length === 0) {
-      throw 'REDMINE_URL_PREFIX is undefined'
-    }
-    return `${this.urlPrefix}/issues/${issueNumber}.json`
-  }
-
-  private async getIssueData(issueNumber: number): Promise<RedmineIssueData|null> {
-    const url = this.getUrl(issueNumber)
-    const resp = await axios.get(url)
-    if (!resp || !resp.data || !resp.data.issue) {
-      return null
-    }
-    return resp.data.issue as RedmineIssueData
-  }
-
   private async updateIssueRedmineData(issue: IssueParam): Promise<void> {
-    const data = await this.getIssueData(issue.number)
+    const data = await this.redmineIssueLoader.getIssueData(issue.number)
     issue.redmineData = data
   }
 

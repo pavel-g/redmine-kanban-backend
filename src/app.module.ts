@@ -6,6 +6,9 @@ import { join } from 'path';
 import {ConfigModule} from "@nestjs/config";
 import { PrismaService } from './prisma/prisma.service';
 import { BoardService } from './board/board.service';
+import { RedisService } from './redis/redis.service';
+import { RedisIssuesCacheService } from './redis-issues-cache/redis-issues-cache.service';
+import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-loader.service';
 
 @Module({
   imports: [
@@ -18,7 +21,7 @@ import { BoardService } from './board/board.service';
     })
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, BoardService],
+  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService],
 })
 export class AppModule implements NestModule {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
