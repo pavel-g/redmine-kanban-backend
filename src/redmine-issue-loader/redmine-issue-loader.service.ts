@@ -3,6 +3,7 @@ import { RedmineIssueData } from '../model/redmine-issue-data';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { RedisIssuesCacheService } from '../redis-issues-cache/redis-issues-cache.service';
+import { AllIssuesData } from '../model/all-issues-data';
 
 @Injectable()
 export class RedmineIssueLoaderService {
@@ -14,6 +15,14 @@ export class RedmineIssueLoaderService {
   }
 
   urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
+
+  async getIssuesData(numbers: number[]): Promise<AllIssuesData> {
+    const promises = numbers.map(issueNumber => this.getIssueData(issueNumber))
+    const rawData = await Promise.all(promises)
+    const res: AllIssuesData = {}
+    rawData.forEach(rawItem => res[rawItem.id] = rawItem)
+    return res
+  }
 
   async getIssueData(issueNumber: number): Promise<RedmineIssueData|null> {
     const issueExistsInRedis = await this.redisIssuesCache.exists(issueNumber)

@@ -105,6 +105,18 @@ export class AppController {
     return JSON.stringify(resp)
   }
 
+  @Get('issue/:id')
+  async getIssueInfo(@Param('id') id: string): Promise<string> {
+    const data = await this.redmineIssueLoader.getIssueData(Number(id))
+    return JSON.stringify(data)
+  }
+
+  @Post('issues')
+  async getIssuesInfo(@Body() body: number[]): Promise<string> {
+    const data = await this.redmineIssueLoader.getIssuesData(body)
+    return JSON.stringify(data)
+  }
+
   @Post('board/create')
   async createBoard(@Body() data: BoardCreateInput): Promise<void> {
     await this.boardService.create(data)
