@@ -9,6 +9,7 @@ import { BoardService } from './board/board.service';
 import { RedisService } from './redis/redis.service';
 import { RedisIssuesCacheService } from './redis-issues-cache/redis-issues-cache.service';
 import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-loader.service';
+import { BoardDataLinkingService } from './board-data-linking/board-data-linking.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-
     })
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService],
+  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService, BoardDataLinkingService],
 })
 export class AppModule implements NestModule {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
