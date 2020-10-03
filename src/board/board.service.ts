@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { IssueParam } from '../model/issue-param';
+import { Board } from '../model/board';
 
 export type BoardWhereUniqInput = {
   id?: number|null,
   name?: string|null
-}
-
-export type Board = {
-  id: number,
-  name: string,
-  config?: IssueParam[]|null
 }
 
 export type BoardCreateInput = {

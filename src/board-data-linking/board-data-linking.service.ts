@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Board, BoardService } from '../board/board.service';
+import { BoardService } from '../board/board.service';
 import { IssueParam } from '../model/issue-param';
 import { RedmineIssueLoaderService } from '../redmine-issue-loader/redmine-issue-loader.service';
 import { KanbanConfig } from '../model/jkanban/kanban-config';
@@ -7,6 +7,7 @@ import { BoardConfig } from '../model/jkanban/board-config';
 import { ColumnParam } from '../model/column-param';
 import { ItemConfig } from '../model/jkanban/item-config';
 import { ConfigService } from '@nestjs/config';
+import { Board } from '../model/board';
 
 @Injectable()
 export class BoardDataLinkingService {
