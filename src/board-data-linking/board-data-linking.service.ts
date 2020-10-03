@@ -8,6 +8,7 @@ import { ColumnParam } from '../model/column-param';
 import { ItemConfig } from '../model/jkanban/item-config';
 import { ConfigService } from '@nestjs/config';
 import { Board } from '../model/board';
+import { BoardFullInfo } from '../model/board-full-info';
 
 @Injectable()
 export class BoardDataLinkingService {
@@ -39,14 +40,15 @@ export class BoardDataLinkingService {
   ) {
   }
 
-  async getData(boardId: number): Promise<Board> {
+  async getData(boardId: number): Promise<BoardFullInfo> {
     const boardParams = await this.boardService.board({id: boardId})
     await this.updateAllIssueRedmineData(boardParams.config)
     const res = this.getKanbans(boardParams.config)
-    const resp: Board = {
+    const resp: BoardFullInfo = {
       id: boardParams.id,
       name: boardParams.name,
-      config: res
+      config: boardParams,
+      kanban: res
     }
     return resp
   }
@@ -97,14 +99,16 @@ export class BoardDataLinkingService {
       const column = this.columns[i]
       store.push({column: column, issue: issue, children: []})
     }
-    for (let i = 0; i < issue.children.length; i++) {
-      const childIssue = issue.children[i]
-      const childIssueStatus = childIssue.redmineData.status.name
-      const column = store.find(item => item.column.status === childIssueStatus)
-      if (!column) {
-        continue
+    if (issue.children && issue.children.length > 0) {
+      for (let i = 0; i < issue.children.length; i++) {
+        const childIssue = issue.children[i]
+        const childIssueStatus = childIssue.redmineData.status.name
+        const column = store.find(item => item.column.status === childIssueStatus)
+        if (!column) {
+          continue
+        }
+        column.children.push(childIssue)
       }
-      column.children.push(childIssue)
     }
     return store.map(item => {
       return {
