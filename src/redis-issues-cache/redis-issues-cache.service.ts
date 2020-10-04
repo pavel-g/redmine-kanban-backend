@@ -3,7 +3,7 @@ import { RedisService } from '../redis/redis.service';
 import { RedmineIssueData } from '../model/redmine-issue-data';
 
 const REDMINE_ISSUES_REDIS_PREFIX = 'issue_'
-const REDMINE_ISSUE_REDIS_TTL = 5 * 60
+const REDMINE_ISSUE_REDIS_TTL = 30 * 60
 
 @Injectable()
 export class RedisIssuesCacheService {
