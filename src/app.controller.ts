@@ -46,6 +46,12 @@ export class AppController {
     return JSON.stringify(data)
   }
 
+  @Get('issue/:id/children')
+  async getIssueChildren(@Param('id') id: number): Promise<string> {
+    const data = await this.redmineIssueLoader.getChildren(id)
+    return JSON.stringify(data)
+  }
+
   @Post('issues')
   async getIssuesInfo(@Body() body: number[]): Promise<string> {
     const data = await this.redmineIssueLoader.getIssuesData(body)

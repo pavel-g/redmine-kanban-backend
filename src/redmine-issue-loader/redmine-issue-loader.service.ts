@@ -39,6 +39,20 @@ export class RedmineIssueLoaderService {
     return data
   }
 
+  async getChildren(issueNumber: number): Promise<number[]> {
+    const url = `${this.getUrl(issueNumber)}?include=children`
+    const resp = await axios.get(url)
+    if (!resp || !resp.data || !resp.data.issue) {
+      return null
+    }
+    const data: RedmineIssueData = resp.data.issue
+    if (!data.children) {
+      return null
+    }
+    const children = data.children
+    return children.map(item => item.id)
+  }
+
   private getUrl(issueNumber: number): string {
     if (typeof this.urlPrefix !== 'string' || this.urlPrefix.length === 0) {
       throw 'REDMINE_URL_PREFIX is undefined'
