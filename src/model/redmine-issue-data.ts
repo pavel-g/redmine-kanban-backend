@@ -15,6 +15,7 @@ export type RedmineIssueData = {
     tracker: IdAndName,
     status: IdAndName,
     author: IdAndName,
+    assigned_to: IdAndName,
     subject: string,
     /** Данные грузятся только при указании параметра "children" - `http://.../issues/123.json?include=children` */
     children?: IssueChildren[]
