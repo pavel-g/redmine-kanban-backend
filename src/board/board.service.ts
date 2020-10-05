@@ -44,7 +44,7 @@ export class BoardService {
   async create(data: BoardCreateInput): Promise<void> {
     const dbData = {
       name: data.name,
-      config: JSON.stringify(data.config)
+      config: JSON.stringify(data.config) // TODO: 2020-10-04 Добавить фильтрацию полей и валидацию данных
     }
     await this.prisma.board.create({data: dbData})
   }
@@ -55,7 +55,7 @@ export class BoardService {
       dbData['name'] = data.name
     }
     if (data.config || data.config === null) {
-      dbData['config'] = JSON.stringify(data.config)
+      dbData['config'] = JSON.stringify(data.config) // TODO: 2020-10-04 Добавить фильтрацию полей и валидацию данных
     }
     await this.prisma.board.update({
       where: {id: id},
