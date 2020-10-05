@@ -29,7 +29,7 @@ export class BoardService {
     return {
       id: dbData.id,
       name: dbData.name,
-      config: JSON.parse(dbData.config)
+      config: (typeof dbData.config === 'string' && dbData.config.length > 0) ? JSON.parse(dbData.config) : null
     }
   }
 
@@ -44,7 +44,7 @@ export class BoardService {
   async create(data: BoardCreateInput): Promise<void> {
     const dbData = {
       name: data.name,
-      config: JSON.stringify(data.config) // TODO: 2020-10-04 Добавить фильтрацию полей и валидацию данных
+      config: data.config ? JSON.stringify(this.clearConfig(data.config)) : ""
     }
     await this.prisma.board.create({data: dbData})
   }
@@ -55,12 +55,26 @@ export class BoardService {
       dbData['name'] = data.name
     }
     if (data.config || data.config === null) {
-      dbData['config'] = JSON.stringify(data.config) // TODO: 2020-10-04 Добавить фильтрацию полей и валидацию данных
+      dbData['config'] = JSON.stringify(this.clearConfig(data.config))
     }
     await this.prisma.board.update({
       where: {id: id},
       data: dbData
     })
+  }
+
+  private clearConfig(config: IssueParam[]): IssueParam[] {
+    return config.map(item => {
+      return this.clearConfigItem(item)
+    })
+  }
+
+  private clearConfigItem(item: IssueParam): IssueParam {
+    const res: IssueParam = {}
+    if (typeof item.number === 'number') res.number = item.number
+    if (typeof item.title === 'string') res.title = item.title
+    if (item.children) res.children = this.clearConfig(item.children)
+    return res
   }
 
 }

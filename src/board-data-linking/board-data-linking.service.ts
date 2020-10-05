@@ -55,6 +55,7 @@ export class BoardDataLinkingService {
 
   // noinspection JSMethodCanBeStatic
   private getFlatIssuesList(issueParams: IssueParam[]): IssueParam[] {
+    if (!issueParams) return [];
     const res = [];
     for(let i = 0; i < issueParams.length; i++) {
       const issue = issueParams[i]
@@ -78,6 +79,7 @@ export class BoardDataLinkingService {
   }
 
   private getKanbans(issues: IssueParam[]): KanbanConfig[] {
+    if (!issues) return [];
     return issues.map(issue => {
       return {
         id: issue.number,
