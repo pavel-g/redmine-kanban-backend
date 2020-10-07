@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { RedmineIssueData } from '../model/redmine-issue-data';
+import { ConfigService } from '@nestjs/config';
 
 const REDMINE_ISSUES_REDIS_PREFIX = 'issue_'
-const REDMINE_ISSUE_REDIS_TTL = 30 * 60
 
 @Injectable()
 export class RedisIssuesCacheService {
 
-  constructor(private redis: RedisService) {
+  constructor(
+    private redis: RedisService,
+    private configService: ConfigService
+  ) {
   }
+
+  private redmineIssueCacheTtl = this.configService.get<number>('REDMINE_ISSUE_CACHE_TTL')
 
   async get(id: number): Promise<RedmineIssueData> {
     const key = `${REDMINE_ISSUES_REDIS_PREFIX}${id}`
@@ -27,7 +32,7 @@ export class RedisIssuesCacheService {
 
   async save(id: number, data: RedmineIssueData): Promise<boolean> {
     const key = `${REDMINE_ISSUES_REDIS_PREFIX}${id}`
-    return await this.redis.set(key, JSON.stringify(data), REDMINE_ISSUE_REDIS_TTL)
+    return await this.redis.set(key, JSON.stringify(data), this.redmineIssueCacheTtl || 300)
   }
 
   async clean(id: number): Promise<boolean> {
