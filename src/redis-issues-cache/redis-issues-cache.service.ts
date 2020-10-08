@@ -14,7 +14,7 @@ export class RedisIssuesCacheService {
   ) {
   }
 
-  private redmineIssueCacheTtl = this.configService.get<number>('REDMINE_ISSUE_CACHE_TTL')
+  private redmineIssueCacheTtl = this.configService.get<number>('REDMINE_ISSUE_CACHE_TTL', 300)
 
   async get(id: number): Promise<RedmineIssueData> {
     const key = `${REDMINE_ISSUES_REDIS_PREFIX}${id}`
@@ -32,7 +32,7 @@ export class RedisIssuesCacheService {
 
   async save(id: number, data: RedmineIssueData): Promise<boolean> {
     const key = `${REDMINE_ISSUES_REDIS_PREFIX}${id}`
-    return await this.redis.set(key, JSON.stringify(data), this.redmineIssueCacheTtl || 300)
+    return await this.redis.set(key, JSON.stringify(data), this.redmineIssueCacheTtl)
   }
 
   async clean(id: number): Promise<boolean> {
