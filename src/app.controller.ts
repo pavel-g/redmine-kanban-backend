@@ -4,6 +4,7 @@ import { BoardCreateInput, BoardService, BoardUpdateInput } from './board/board.
 import demoData from "./demo-data"
 import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-loader.service';
 import { BoardDataLinkingService } from './board-data-linking/board-data-linking.service';
+import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-loader.service';
 
 @Controller()
 export class AppController {
@@ -11,7 +12,8 @@ export class AppController {
       private readonly appService: AppService,
       private boardService: BoardService,
       private redmineIssueLoader: RedmineIssueLoaderService,
-      private boardDataLinking: BoardDataLinkingService
+      private boardDataLinking: BoardDataLinkingService,
+      private redmineUsersLoader: RedmineUsersLoaderService
   ) {}
 
   @Get('kanban-data')
@@ -66,6 +68,18 @@ export class AppController {
   @Post('board/:id/update')
   async updateBoard(@Param('id') id: string, @Body() data: BoardUpdateInput): Promise<void> {
     await this.boardService.update(Number(id), data)
+  }
+
+  @Get('user/:id')
+  async getUser(@Param('id') userId: number): Promise<string> {
+    const data = await this.redmineUsersLoader.getUserData(userId)
+    return JSON.stringify(data)
+  }
+
+  @Post('users')
+  async getUsers(@Body() body: number[]): Promise<string> {
+    const data = await this.redmineUsersLoader.getUsersData(body)
+    return JSON.stringify(data)
   }
 
 }
