@@ -16,12 +16,9 @@ export class RedmineUsersLoaderService {
 
   urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
 
-  async getUsersData(userIds: number[]): Promise<AllRedmineUsersData> {
+  async getUsersData(userIds: number[]): Promise<RedmineUser[]> {
     const promises = userIds.map(userId => this.getUserData(userId))
-    const rawData = await Promise.all(promises)
-    const res: AllRedmineUsersData = {}
-    rawData.forEach(userData => res[userData.id] = userData)
-    return res
+    return await Promise.all(promises)
   }
 
   async getUserData(userId: number): Promise<RedmineUser|null> {

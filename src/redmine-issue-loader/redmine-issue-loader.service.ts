@@ -16,12 +16,9 @@ export class RedmineIssueLoaderService {
 
   urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
 
-  async getIssuesData(numbers: number[]): Promise<AllIssuesData> {
+  async getIssuesData(numbers: number[]): Promise<RedmineIssueData[]> {
     const promises = numbers.map(issueNumber => this.getIssueData(issueNumber))
-    const rawData = await Promise.all(promises)
-    const res: AllIssuesData = {}
-    rawData.forEach(rawItem => res[rawItem.id] = rawItem)
-    return res
+    return await Promise.all(promises)
   }
 
   async getIssueData(issueNumber: number): Promise<RedmineIssueData|null> {
