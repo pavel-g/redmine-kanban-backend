@@ -11,6 +11,8 @@ export type KanbanConfig = {
 
     id: number
 
+    number?: number
+
     /**
      * id для div-контейнера на html странице, например - #issue_123
      */

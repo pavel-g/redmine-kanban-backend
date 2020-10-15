@@ -9,6 +9,12 @@ type IssueChildren = {
     subject: string
 }
 
+type CustomField = {
+  id: number,
+  name: string,
+  value: string
+}
+
 export type RedmineIssueData = {
     id: number,
     project: IdAndName,
@@ -18,5 +24,6 @@ export type RedmineIssueData = {
     assigned_to: IdAndName,
     subject: string,
     /** Данные грузятся только при указании параметра "children" - `http://.../issues/123.json?include=children` */
-    children?: IssueChildren[]
+    children?: IssueChildren[],
+    custom_fields: CustomField[]
 }
