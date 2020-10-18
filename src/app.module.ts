@@ -12,6 +12,9 @@ import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-
 import { BoardDataLinkingService } from './board-data-linking/board-data-linking.service';
 import { RedisUsersCacheService } from './redis-users-cache/redis-users-cache.service';
 import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-loader.service';
+import { RedisMergerequestsCacheService } from './redis-mergerequests-cache/redis-mergerequests-cache.service';
+import { RedisMrStatusesCacheService } from './redis-mr-statuses-cache/redis-mr-statuses-cache.service';
+import { MrStatusesLoaderService } from './mr-statuses-loader/mr-statuses-loader.service';
 
 @Module({
   imports: [
@@ -24,7 +27,7 @@ import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-
     })
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService, BoardDataLinkingService, RedisUsersCacheService, RedmineUsersLoaderService],
+  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService, BoardDataLinkingService, RedisUsersCacheService, RedmineUsersLoaderService, RedisMergerequestsCacheService, RedisMrStatusesCacheService, MrStatusesLoaderService],
 })
 export class AppModule implements NestModule {
   // eslint-disable-next-line @typescript-eslint/no-empty-function

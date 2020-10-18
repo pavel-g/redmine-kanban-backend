@@ -5,6 +5,7 @@ import demoData from "./demo-data"
 import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-loader.service';
 import { BoardDataLinkingService } from './board-data-linking/board-data-linking.service';
 import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-loader.service';
+import { MrStatusesLoaderService } from './mr-statuses-loader/mr-statuses-loader.service';
 
 @Controller()
 export class AppController {
@@ -13,7 +14,8 @@ export class AppController {
       private boardService: BoardService,
       private redmineIssueLoader: RedmineIssueLoaderService,
       private boardDataLinking: BoardDataLinkingService,
-      private redmineUsersLoader: RedmineUsersLoaderService
+      private redmineUsersLoader: RedmineUsersLoaderService,
+      private mrStatusesLoader: MrStatusesLoaderService
   ) {}
 
   @Get('kanban-data')
@@ -54,6 +56,12 @@ export class AppController {
     return JSON.stringify(data)
   }
 
+  @Get('issue/:id/merge-requests')
+  async getIssueMergeRequests(@Param('id') id: number): Promise<string> {
+    const data = await this.redmineIssueLoader.getMergeRequests(id)
+    return JSON.stringify(data)
+  }
+
   @Post('issues')
   async getIssuesInfo(@Body() body: number[]): Promise<string> {
     const data = await this.redmineIssueLoader.getIssuesData(body)
@@ -79,6 +87,18 @@ export class AppController {
   @Post('users')
   async getUsers(@Body() body: number[]): Promise<string> {
     const data = await this.redmineUsersLoader.getUsersData(body)
+    return JSON.stringify(data)
+  }
+
+  @Get('merge-request/:id')
+  async getMergeRequest(@Param('id') mrId: number): Promise<string> {
+    const data = await this.mrStatusesLoader.getMrStatuses(mrId)
+    return JSON.stringify(data)
+  }
+
+  @Post('merge-requests')
+  async getMergeRequests(@Body() mrIds: number[]): Promise<string> {
+    const data = await this.mrStatusesLoader.getAllMrStatuses(mrIds)
     return JSON.stringify(data)
   }
 

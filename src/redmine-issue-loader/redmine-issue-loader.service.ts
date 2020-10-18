@@ -4,17 +4,22 @@ import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { RedisIssuesCacheService } from '../redis-issues-cache/redis-issues-cache.service';
 import { AllIssuesData } from '../model/all-issues-data';
+import { RedisMergerequestsCacheService } from '../redis-mergerequests-cache/redis-mergerequests-cache.service';
 
 @Injectable()
 export class RedmineIssueLoaderService {
 
   constructor(
     private configService: ConfigService,
-    private redisIssuesCache: RedisIssuesCacheService
+    private redisIssuesCache: RedisIssuesCacheService,
+    private redisMergerequestsCache: RedisMergerequestsCacheService
   ) {
   }
 
   urlPrefix = this.configService.get<string>('REDMINE_URL_PREFIX')
+  gitlabMergeRequestPrefix = this.configService.get<string>('GITLAB_MERGE_REQUEST_PREFIX', 'https://gitlab.com/your-group/your-project/-/merge_requests/')
+
+  private gitlabNumberRegexp = /^[0-9]*\b/
 
   async getIssuesData(numbers: number[]): Promise<RedmineIssueData[]> {
     const promises = numbers.map(issueNumber => this.getIssueData(issueNumber))
@@ -37,12 +42,7 @@ export class RedmineIssueLoaderService {
   }
 
   async getChildren(issueNumber: number): Promise<number[]> {
-    const url = `${this.getUrl(issueNumber)}?include=children`
-    const resp = await axios.get(url)
-    if (!resp || !resp.data || !resp.data.issue) {
-      return null
-    }
-    const data: RedmineIssueData = resp.data.issue
+    const data = await this.getIssueData(issueNumber)
     if (!data.children) {
       return null
     }
@@ -50,11 +50,59 @@ export class RedmineIssueLoaderService {
     return children.map(item => item.id)
   }
 
+  async getMergeRequests(issueNumber: number): Promise<number[]> {
+    const mrExists = await this.redisMergerequestsCache.exists(issueNumber)
+    if (mrExists) {
+      return await this.redisMergerequestsCache.get(issueNumber)
+    }
+
+    const data = await this.getIssueData(issueNumber)
+    if (!data.journals) {
+      return []
+    }
+
+    const journals = data.journals
+    const comments = journals.filter(item => typeof item.notes === 'string').map(item => item.notes) as string[]
+
+    const res = this.searchAllGitlabMergeRequests(comments)
+    this.redisMergerequestsCache.save(issueNumber, res)
+    return res
+  }
+
+  private searchGitlabMergeRequest(comment: string): number[] {
+    const parts = comment.split(this.gitlabMergeRequestPrefix)
+    if (parts.length <= 1) {
+      return []
+    }
+
+    parts.splice(0, 1)
+    const res = parts
+      .map(part => {
+        const results = part.match(this.gitlabNumberRegexp)
+        if (results && results.length > 0) {
+          return Number(results[0])
+        }
+      })
+      .filter(num => Number.isFinite(num)) as number []
+
+    return res
+  }
+
+  private searchAllGitlabMergeRequests(comments: string[]): number[] {
+    const res: number[] = []
+    comments
+      .map(comment => this.searchGitlabMergeRequest(comment))
+      .forEach(mrs => {
+        res.push(...mrs)
+      })
+    return res
+  }
+
   private getUrl(issueNumber: number): string {
     if (typeof this.urlPrefix !== 'string' || this.urlPrefix.length === 0) {
       throw 'REDMINE_URL_PREFIX is undefined'
     }
-    return `${this.urlPrefix}/issues/${issueNumber}.json`
+    return `${this.urlPrefix}/issues/${issueNumber}.json?include=children,journals`
   }
 
 }
