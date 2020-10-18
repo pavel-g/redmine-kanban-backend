@@ -5,6 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { RedisIssuesCacheService } from '../redis-issues-cache/redis-issues-cache.service';
 import { AllIssuesData } from '../model/all-issues-data';
 import { RedisMergerequestsCacheService } from '../redis-mergerequests-cache/redis-mergerequests-cache.service';
+import { MergeRequestStatuses } from '../model/mergerequest-statuses';
+import { MrStatusesLoaderService } from '../mr-statuses-loader/mr-statuses-loader.service';
+import { IssueNumberAndMrInfo } from '../model/issuenumber-and-mr-info';
 
 @Injectable()
 export class RedmineIssueLoaderService {
@@ -12,7 +15,8 @@ export class RedmineIssueLoaderService {
   constructor(
     private configService: ConfigService,
     private redisIssuesCache: RedisIssuesCacheService,
-    private redisMergerequestsCache: RedisMergerequestsCacheService
+    private redisMergerequestsCache: RedisMergerequestsCacheService,
+    private mrStatusesLoader: MrStatusesLoaderService
   ) {
   }
 
@@ -67,6 +71,20 @@ export class RedmineIssueLoaderService {
     const res = this.searchAllGitlabMergeRequests(comments)
     this.redisMergerequestsCache.save(issueNumber, res)
     return res
+  }
+
+  async getMergeRequestsInfo(issueNumber: number): Promise<MergeRequestStatuses[]> {
+    const mrIds = await this.getMergeRequests(issueNumber)
+    return await this.mrStatusesLoader.getAllMrStatuses(mrIds)
+  }
+
+  async getMergeRequestsInfoForAllIssues(ids: number[]): Promise<IssueNumberAndMrInfo[]> {
+    const createPromise = async (issueNumber: number): Promise<IssueNumberAndMrInfo> => {
+      const mrsInfo = await this.getMergeRequestsInfo(issueNumber)
+      return {issueNumber: issueNumber, mergeRequestsInfo: mrsInfo}
+    }
+    const promises = ids.map(id => createPromise(id))
+    return await Promise.all(promises)
   }
 
   private searchGitlabMergeRequest(comment: string): number[] {

@@ -62,9 +62,21 @@ export class AppController {
     return JSON.stringify(data)
   }
 
+  @Get('issue/:id/merge-requests/info')
+  async getIssueMergeRequestsInfo(@Param('id') id: number): Promise<string> {
+    const data = await this.redmineIssueLoader.getMergeRequestsInfo(id);
+    return JSON.stringify(data)
+  }
+
   @Post('issues')
   async getIssuesInfo(@Body() body: number[]): Promise<string> {
     const data = await this.redmineIssueLoader.getIssuesData(body)
+    return JSON.stringify(data)
+  }
+
+  @Post('issues/merge-requests-info')
+  async getMergeRequestsInfoForIssues(@Body() issueNumbers: number[]): Promise<string> {
+    const data = await this.redmineIssueLoader.getMergeRequestsInfoForAllIssues(issueNumbers)
     return JSON.stringify(data)
   }
 
