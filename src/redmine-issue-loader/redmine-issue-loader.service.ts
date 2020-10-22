@@ -3,11 +3,11 @@ import { RedmineIssueData } from '../model/redmine-issue-data';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { RedisIssuesCacheService } from '../redis-issues-cache/redis-issues-cache.service';
-import { AllIssuesData } from '../model/all-issues-data';
 import { RedisMergerequestsCacheService } from '../redis-mergerequests-cache/redis-mergerequests-cache.service';
 import { MergeRequestStatuses } from '../model/mergerequest-statuses';
 import { MrStatusesLoaderService } from '../mr-statuses-loader/mr-statuses-loader.service';
 import { IssueNumberAndMrInfo } from '../model/issuenumber-and-mr-info';
+import { uniq } from '../util/util';
 
 @Injectable()
 export class RedmineIssueLoaderService {
@@ -103,7 +103,7 @@ export class RedmineIssueLoaderService {
       })
       .filter(num => Number.isFinite(num)) as number []
 
-    return res
+    return uniq(res)
   }
 
   private searchAllGitlabMergeRequests(comments: string[]): number[] {
@@ -113,7 +113,7 @@ export class RedmineIssueLoaderService {
       .forEach(mrs => {
         res.push(...mrs)
       })
-    return res
+    return uniq(res)
   }
 
   private getUrl(issueNumber: number): string {
