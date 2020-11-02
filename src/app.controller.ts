@@ -92,8 +92,17 @@ export class AppController {
 
   @Get('user/:id')
   async getUser(@Param('id') userId: number): Promise<string> {
-    const data = await this.redmineUsersLoader.getUserData(userId)
-    return JSON.stringify(data)
+    try {
+      const data = await this.redmineUsersLoader.getUserData(userId)
+      return JSON.stringify(data)
+    } catch (e) {
+      if (e?.response?.status == 404) {
+        console.error(`User ${userId} not found`)
+      } else {
+        console.error(`Get user ${userId} finished with error`, e)
+      }
+      return JSON.stringify(null)
+    }
   }
 
   @Post('users')
