@@ -26,6 +26,9 @@ export class BoardService {
 
   async board(where: BoardWhereUniqInput): Promise<Board|null> {
     const dbData = await this.prisma.board.findOne({where: where})
+    if (!dbData) {
+      return null
+    }
     return {
       id: dbData.id,
       name: dbData.name,
