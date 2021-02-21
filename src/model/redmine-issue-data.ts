@@ -31,6 +31,9 @@ export type RedmineIssueData = {
     author: IdAndName,
     assigned_to: IdAndName,
     subject: string,
+    parent?: {
+        id: number
+    },
     /** Данные грузятся только при указании параметра "children" - `http://.../issues/123.json?include=children` */
     children?: IssueChildren[],
     custom_fields: CustomField[],
