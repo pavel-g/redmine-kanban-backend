@@ -3,10 +3,11 @@ type IdAndName = {
     name: string
 }
 
-type IssueChildren = {
+export type IssueChildren = {
     id: number,
     tracker: IdAndName
-    subject: string
+    subject: string,
+    children?: IssueChildren[]
 }
 
 type CustomField = {

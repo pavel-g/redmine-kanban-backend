@@ -6,6 +6,7 @@ import { RedmineIssueLoaderService } from './redmine-issue-loader/redmine-issue-
 import { BoardDataLinkingService } from './board-data-linking/board-data-linking.service';
 import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-loader.service';
 import { MrStatusesLoaderService } from './mr-statuses-loader/mr-statuses-loader.service';
+import { FromRootGeneratorService } from './generators/from-root-generator/from-root-generator.service';
 
 @Controller()
 export class AppController {
@@ -15,7 +16,8 @@ export class AppController {
       private redmineIssueLoader: RedmineIssueLoaderService,
       private boardDataLinking: BoardDataLinkingService,
       private redmineUsersLoader: RedmineUsersLoaderService,
-      private mrStatusesLoader: MrStatusesLoaderService
+      private mrStatusesLoader: MrStatusesLoaderService,
+      private fromRootGeneratorService: FromRootGeneratorService
   ) {}
 
   @Get('kanban-data')
@@ -65,6 +67,12 @@ export class AppController {
   @Get('issue/:id/merge-requests/info')
   async getIssueMergeRequestsInfo(@Param('id') id: number): Promise<string> {
     const data = await this.redmineIssueLoader.getMergeRequestsInfo(id);
+    return JSON.stringify(data)
+  }
+
+  @Get('generate-from-root/:id')
+  async getConfigFromRootIssue(@Param('id') id: number): Promise<string> {
+    const data = await this.fromRootGeneratorService.generate(id)
     return JSON.stringify(data)
   }
 

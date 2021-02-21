@@ -15,6 +15,7 @@ import { RedmineUsersLoaderService } from './redmine-users-loader/redmine-users-
 import { RedisMergerequestsCacheService } from './redis-mergerequests-cache/redis-mergerequests-cache.service';
 import { RedisMrStatusesCacheService } from './redis-mr-statuses-cache/redis-mr-statuses-cache.service';
 import { MrStatusesLoaderService } from './mr-statuses-loader/mr-statuses-loader.service';
+import { FromRootGeneratorService } from './generators/from-root-generator/from-root-generator.service';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { MrStatusesLoaderService } from './mr-statuses-loader/mr-statuses-loader
     })
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService, BoardDataLinkingService, RedisUsersCacheService, RedmineUsersLoaderService, RedisMergerequestsCacheService, RedisMrStatusesCacheService, MrStatusesLoaderService],
+  providers: [AppService, PrismaService, BoardService, RedisService, RedisIssuesCacheService, RedmineIssueLoaderService, BoardDataLinkingService, RedisUsersCacheService, RedmineUsersLoaderService, RedisMergerequestsCacheService, RedisMrStatusesCacheService, MrStatusesLoaderService, FromRootGeneratorService],
 })
 export class AppModule implements NestModule {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
