@@ -52,11 +52,18 @@ export class RedisService {
     })
   }
 
-  set(key: string, value: string, duration: number): Promise<boolean> {
+  set(key: string, value: string, duration = -1): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      this.getRedis().set(key, value, 'EX', duration, (err, res) => {
+      const redis = this.getRedis()
+      const args: any[] = [key, value]
+      if (duration >= 0) {
+        args.push('EX', duration)
+      }
+      args.push((err, res) => {
         resolve(!err && res === "OK")
       })
+
+      redis.apply(redis, args)
     })
   }
 

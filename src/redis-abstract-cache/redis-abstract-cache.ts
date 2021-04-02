@@ -1,4 +1,5 @@
 import { RedisService } from '../redis/redis.service';
+import { CacheTtlType } from '../types/cache-ttl-type';
 
 export abstract class RedisAbstractCache<K, D> {
 
@@ -16,11 +17,19 @@ export abstract class RedisAbstractCache<K, D> {
     return await this.redis.exists(this.getKey(key))
   }
 
-  async save(key: K, data: D): Promise<boolean> {
+  async save(key: K, data: D, ttl: CacheTtlType = 'DEFAULT'): Promise<boolean> {
+    let calculatedTtl: number;
+    if (ttl === 'INFINITY') {
+      calculatedTtl = -1
+    } else if (typeof ttl === 'number') {
+      calculatedTtl = ttl
+    } else {
+      calculatedTtl = this.ttl
+    }
     return await this.redis.set(
       this.getKey(key),
       JSON.stringify(data),
-      this.ttl
+      calculatedTtl
     )
   }
 

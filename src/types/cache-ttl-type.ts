@@ -1,0 +1,1 @@
+export type CacheTtlType = number|"DEFAULT"|"INFINITY"
