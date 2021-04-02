@@ -48,7 +48,7 @@ export class RedmineIssueLoaderService {
   async getChildren(issueNumber: number): Promise<number[]> {
     const data = await this.getIssueData(issueNumber)
     if (!data.children) {
-      return null
+      return []
     }
     const children = data.children
     return children.map(item => item.id)
